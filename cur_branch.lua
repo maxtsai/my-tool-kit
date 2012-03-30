@@ -3,6 +3,8 @@
 	Linux Only
 	Max Tsai(haiching.tsai@gmail.com)
 	2012/1/12
+
+	This script shows current branch per git
 ]]
 
 dedicate_git_list = {}
