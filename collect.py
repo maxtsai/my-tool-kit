@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+'''
+Max Tsai <haiching.tsai@gmail.com>
+2013/5/6
+'''
 
 import os
 import sys
@@ -42,6 +46,7 @@ def move_jpeg(filename):
 				shutil.move(filename, dst_path + '/' + str(i) + '_' + tail)
 				total += 1
 				break
+
 def move_other_type(filename):
 	global dst_root
 	global total
