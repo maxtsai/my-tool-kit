@@ -103,11 +103,27 @@ def walk_func(cur_dir, direction, files):
 			sys.stdout.write("x")
 			sys.stdout.flush()
 			move_other_type(direction + '/' + i)
+		if fileExtension == '.mp4' or fileExtension == '.MP4':
+			sys.stdout.write("x")
+			sys.stdout.flush()
+			move_other_type(direction + '/' + i)
 		if fileExtension == '.tif' or fileExtension == '.TIF':
 			sys.stdout.write("x")
 			sys.stdout.flush()
 			move_other_type(direction + '/' + i)
 		if fileExtension == '.avi' or fileExtension == '.AVI':
+			sys.stdout.write("x")
+			sys.stdout.flush()
+			move_other_type(direction + '/' + i)
+		if fileExtension == '.png' or fileExtension == '.PNG':
+			sys.stdout.write("x")
+			sys.stdout.flush()
+			move_other_type(direction + '/' + i)
+		if fileExtension == '.jpe' or fileExtension == '.JPE':
+			sys.stdout.write("x")
+			sys.stdout.flush()
+			move_other_type(direction + '/' + i)
+		if fileExtension == '.3gp' or fileExtension == '.3GP':
 			sys.stdout.write("x")
 			sys.stdout.flush()
 			move_other_type(direction + '/' + i)
