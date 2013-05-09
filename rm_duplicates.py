@@ -23,22 +23,15 @@ def remove_duplicate(path):
 			#print full_path + ' : ' + filehash
 			duplicate = hashes.get(filehash, None)	
 			if duplicate:
-				#sys.stdout.write('\n')
-				#sys.stdout.flush()
 				print "Duplicate found: %s and %s" % (full_path, duplicate)
 				os.remove(full_path)
-				#sys.stdout.write('-')
 				remove += 1
 			else:
 				hashes[filehash] = full_path
-				#sys.stdout.write('+')
-				#sys.stdout.flush()
 			total += 1
 	#print hashes
-
 	sys.stdout.write('\n')
-	#print 'hash list = ' + str(len(hashes))
-	print 'total, remove = ' + str(total) + ', ' + str(remove)
+	print 'total, remove, rest = ' + str(total) + ', ' + str(remove) + ', ' + str(total-remove)
 
 if len(sys.argv) != 2:
 	print "Usage: rm_duplicate folder"
