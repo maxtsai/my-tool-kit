@@ -1,10 +1,8 @@
 #!/usr/bin/lua
 --[[
-	Linux Only
+	Linux Only, lua 5.0+
 	Max Tsai(haiching.tsai@gmail.com)
 	2012/1/12
-
-	This script shows current branch per git
 ]]
 
 dedicate_git_list = {}
@@ -55,7 +53,7 @@ function travel_all_path (path)
 				table.remove(sub_dir, i)
 			end
 			sub_dir[i] = path.."/"..sub_dir[i]
-			--print(i.." : "..#sub_dir.." : "..sub_dir[i])
+			print(i.." : "..#sub_dir.." : "..sub_dir[i])
 			travel_all_path(sub_dir[i])
 		end
 	end
