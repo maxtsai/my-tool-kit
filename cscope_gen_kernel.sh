@@ -24,12 +24,12 @@ find ./ \
 	-o -path "./arch/um" -prune \
 	-o -path "./arch/x86" -prune \
 	-o -path "./arch/xtensa" -prune \
-	-o -path "./Documentation" -prune \
 	-o -iname "*.[chxsS]" -print \
 	> ./cscope.files
 
 find ./arch/arm/boot/dts -iname "*mx*.dts" >> ./cscope.files
 find ./arch/arm/boot/dts -iname "*mx*.dtsi" >> ./cscope.files
+find ./arch/arm64/boot/dts -iname "*mx*.dtsi" >> ./cscope.files
 
 cscope -b -q
 
