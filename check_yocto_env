@@ -1,0 +1,8 @@
+env | grep -i -w -e BB_NUMBER_THREADS -e PARALLEL_MAKE
+
+bitbake-layers show-layers
+
+bitbake -e | grep ^DL_DIR=
+bitbake -e | grep ^SSTATE_DIR=
+
+
