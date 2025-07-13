@@ -32,6 +32,34 @@ fsearch() {
   fi
 }
 
+# 開啟 Git 專案內的 tracked 檔案
+gitf() {
+  local file
+  file=$(git ls-files | fzf)
+  [ -n "$file" ] && vi "$file"
+}
+
+# 使用 tig 檢視 log
+gitlog() {
+  tig log
+}
+
+# 使用 tig blame 檢視某檔案（fzf 選擇）
+gitblame() {
+  local file
+  file=$(git ls-files | fzf)
+  [ -n "$file" ] && tig blame "$file"
+}
+
+# fuzzy 切換 Git 分支
+gitswitch() {
+  local branch
+  branch=$(git branch --all | grep -v 'HEAD' | sed 's/remotes\///' | sort -u | fzf)
+  [ -n "$branch" ] && git checkout "$branch"
+}
+
+
+
 # Convenient aliases
 alias vfind='vf'
 alias vcd='fcd'
