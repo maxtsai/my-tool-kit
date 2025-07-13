@@ -59,6 +59,27 @@ gitswitch() {
 }
 
 
+vhelp() {
+  cat <<'EOF'
+
+🎯 FZF Command Reference (for Max)
+
+  viupdate       → Refresh the file index (absolute paths, skips .git/build/etc)
+  vf / vfind     → Fuzzy-pick a file from the index and open in vi
+  vseek <term>   → Fuzzy-search text via ripgrep and jump to line in vi
+  fcd            → Fuzzy cd into any subdirectory (ignores build/tmp/.git)
+  gitf           → Fuzzy-pick a Git-tracked file and open in vi
+  gitlog         → Browse commit history using tig
+  gitblame       → Fuzzy-pick a file and view `tig blame`
+  gitswitch      → Fuzzy-pick and switch Git branch
+
+Tips:
+  - Use Ctrl+C or ESC to cancel out of fzf
+  - Use Ctrl+D / Ctrl+U to page down/up in fzf
+  - Run `viupdate` again after switching projects to refresh file paths
+
+EOF
+}
 
 # Convenient aliases
 alias vfind='vf'
