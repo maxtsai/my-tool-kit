@@ -3,10 +3,29 @@
 
 # Fuzzy open file using vi
 vf() {
+  local dir="$PWD"
+  local index_file=""
+  while [[ "$dir" != "$HOME" && "$dir" != "/" ]]; do
+    if [[ -f "$dir/.fzf-index-files" ]]; then
+      index_file="$dir/.fzf-index-files"
+      break
+    fi
+    dir=$(dirname "$dir")
+  done
+
+  # 若找不到，預設為 ~/.fzf-index-files
+  [[ -z "$index_file" ]] && index_file="$HOME/.fzf-index-files"
+
+  if [[ ! -f "$index_file" ]]; then
+    echo "❌ No index file found."
+    return 1
+  fi
+
   local file
-  file=$(cat "${HOME}/.fzf-index-files" 2>/dev/null | fzf)
-  [ -n "$file" ] && vi "$file"
+  file=$(cat "$index_file" | fzf)
+  [[ -n "$file" ]] && vi "$file"
 }
+
 
 # Fuzzy cd into a directory
 fcd() {
