@@ -64,7 +64,7 @@ vhelp() {
 
 🎯 FZF Command Reference (for Max)
 
-  viupdate       → Refresh the file index (absolute paths, skips .git/build/etc)
+  vupdate       → Refresh the file index (absolute paths, skips .git/build/etc)
   vf / vfind     → Fuzzy-pick a file from the index and open in vi
   vseek <term>   → Fuzzy-search text via ripgrep and jump to line in vi
   fcd            → Fuzzy cd into any subdirectory (ignores build/tmp/.git)
@@ -76,7 +76,7 @@ vhelp() {
 Tips:
   - Use Ctrl+C or ESC to cancel out of fzf
   - Use Ctrl+D / Ctrl+U to page down/up in fzf
-  - Run `viupdate` again after switching projects to refresh file paths
+  - Run `vupdate` again after switching projects to refresh file paths
 
 EOF
 }
