@@ -5,6 +5,8 @@
 vf() {
   local dir="$PWD"
   local index_file=""
+
+  # 找出最近的 .fzf-index-files
   while [[ "$dir" != "$HOME" && "$dir" != "/" ]]; do
     if [[ -f "$dir/.fzf-index-files" ]]; then
       index_file="$dir/.fzf-index-files"
@@ -13,17 +15,19 @@ vf() {
     dir=$(dirname "$dir")
   done
 
-  # 若找不到，預設為 ~/.fzf-index-files
+  # fallback
   [[ -z "$index_file" ]] && index_file="$HOME/.fzf-index-files"
+  [[ ! -f "$index_file" ]] && { echo "❌ No index file found."; return 1; }
 
-  if [[ ! -f "$index_file" ]]; then
-    echo "❌ No index file found."
-    return 1
-  fi
+  local index_dir
+  index_dir=$(dirname "$index_file")
 
+  # 用 pushd/popd 暫時切換資料夾
+  pushd "$index_dir" >/dev/null || return 1
   local file
-  file=$(cat "$index_file" | fzf)
+  file=$(fzf < "$index_file")
   [[ -n "$file" ]] && vi "$file"
+  popd >/dev/null
 }
 
 
