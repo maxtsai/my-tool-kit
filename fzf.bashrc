@@ -108,5 +108,5 @@ EOF
 alias vfind='vf'
 alias vcd='fcd'
 alias vseek='fsearch'
-alias vupdate='/home/max/bin/update_fzf_index.sh'
+alias vupdate='$HOME/bin/update_fzf_index.sh'
 

@@ -7,9 +7,11 @@ if [ -z "$1" ]; then
 fi
 
 CACHE_NAME="$1"
-CACHE_BASE="$HOME/yocto-cache/$CACHE_NAME"
+CACHE_BASE="/data/localdrive/hctsai/yocto-cache/$CACHE_NAME"
 DL_DIR_LINE="DL_DIR ?= \"${CACHE_BASE}/downloads\""
 SSTATE_DIR_LINE="SSTATE_DIR ?= \"${CACHE_BASE}/sstate\""
+PARALLEL_NUM="PARALLEL_MAKE = \"-j 12\""
+BB_NUMBER="BB_NUMBER_THREADS = \"4\""
 
 # 建立 cache 目錄（若尚未存在）
 mkdir -p "${CACHE_BASE}/downloads" "${CACHE_BASE}/sstate"
@@ -40,6 +42,19 @@ for LOCAL_CONF in $LOCAL_CONFS; do
         echo "✅ Added SSTATE_DIR"
     else
         echo "ℹ️  SSTATE_DIR already exists"
+    fi
+
+    if ! grep -q '^PARALLEL_MAKE' "$LOCAL_CONF"; then
+        echo "$PARALLEL_NUM" >> "$LOCAL_CONF"
+        echo "✅ Added PARALLEL_NUM"
+    else
+        echo "ℹ️  PARALLEL_NUM already exists"
+    fi
+    if ! grep -q '^BB_NUMBER_THREADS' "$LOCAL_CONF"; then
+        echo "$BB_NUMBER" >> "$LOCAL_CONF"
+        echo "✅ Added BB_NUMBER"
+    else
+        echo "ℹ️  BB_NUMBER already exists"
     fi
 done
 
