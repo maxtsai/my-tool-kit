@@ -1,80 +1,55 @@
 #!/bin/bash
+set -e
 
-# --- Input Validation ---
-if [ -z "$1" ]; then
-    echo "❌ Usage: $0 <cache-subdir-name> (e.g., rel17 or rel18)"
-    exit 1
-fi
-
-CACHE_NAME="$1"
-CACHE_BASE="$HOME/yocto-cache/$CACHE_NAME"
-DL_DIR_LINE="DL_DIR ?= \"${CACHE_BASE}/downloads\""
-SSTATE_DIR_LINE="SSTATE_DIR ?= \"${CACHE_BASE}/sstate\""
-
-# --- CPU Core Calculation ---
-# Get the total number of logical CPU cores
+# Shared cache path (NFS mount). Override with:
+# ./set_yocto_cache.sh /mnt/nfs/yocto-cache
+CACHE_BASE="${1:-$HOME/yocto-cache}"
 CPU_CORES=$(nproc)
 
-# Calculate the optimal parallel job limit (half the cores, minimum 2)
-# The '-j' in PARALLEL_MAKE needs to be slightly higher than BB_NUMBER_THREADS
-BB_THREADS=$(( (CPU_CORES + 1) / 8 ))  # Round up division by 2
-MAKE_JOBS=$(( (CPU_CORES + 1) / 2 ))        # Set PARALLEL_MAKE slightly higher
+# Yocto parallelism
+BB_THREADS=$(( CPU_CORES / 4 ))
+MAKE_JOBS=$(( CPU_CORES / 2 ))
+(( BB_THREADS < 2 )) && BB_THREADS=2
+(( MAKE_JOBS < 2 )) && MAKE_JOBS=2
+(( BB_THREADS > 20 )) && BB_THREADS=20
+(( MAKE_JOBS > 32 )) && MAKE_JOBS=32
 
-# Ensure a minimum value for stability, even on single-core systems
-if [ "$BB_THREADS" -lt 2 ]; then
-    BB_THREADS=2
-    MAKE_JOBS=3
-fi
+mkdir -p "$CACHE_BASE/downloads" "$CACHE_BASE/sstate"
 
-BB_THREADS_LINE="BB_NUMBER_THREADS ?= \"$BB_THREADS\""
-MAKE_JOBS_LINE="PARALLEL_MAKE ?= \"-j $MAKE_JOBS\""
+LOCAL_CONFS=$(find build/* -path "*/conf/local.conf" -maxdepth 2 -type f 2>/dev/null)
+[ -z "$LOCAL_CONFS" ] && { echo "No build/*/conf/local.conf found"; exit 1; }
 
-echo "🧠 System has $CPU_CORES CPU cores. Setting parallelism to:"
-echo "    BB_NUMBER_THREADS = $BB_THREADS"
-echo "    PARALLEL_MAKE   = -j $MAKE_JOBS"
+update_var() {
+    local file="$1" name="$2" line="$3"
+    local re="^[[:space:]]*(export[[:space:]]+)?${name}[[:space:]]*(\\?=|=)"
 
-# --- Cache Directory Setup ---
-mkdir -p "${CACHE_BASE}/downloads" "${CACHE_BASE}/sstate"
-echo "📦 Ensured cache folders: $CACHE_BASE"
+    if grep -Eq "$re" "$file"; then
+        sed -Ei "\@${re}@c\\${line}" "$file"
+    else
+        echo "$line" >> "$file"
+    fi
+}
 
-# --- Configuration File Search ---
-LOCAL_CONFS=$(find build/* -maxdepth 2 -type f -path "*/conf/local.conf")
+# --- Yocto common settings ---
+for conf in $LOCAL_CONFS; do
+    touch "$(dirname "$conf")/sanity.conf"
 
-if [ -z "$LOCAL_CONFS" ]; then
-    echo "❌ Error: No local.conf found under build/*/conf/"
-    exit 1
-fi
+    update_var "$conf" DL_DIR \
+        'DL_DIR ?= "'"$CACHE_BASE"'/downloads"'
+    update_var "$conf" SSTATE_DIR \
+        'SSTATE_DIR ?= "'"$CACHE_BASE"'/sstate"'
+    update_var "$conf" BB_NUMBER_THREADS \
+        'BB_NUMBER_THREADS ?= "'"$BB_THREADS"'"'
+    update_var "$conf" PARALLEL_MAKE \
+        'PARALLEL_MAKE ?= "-j '"$MAKE_JOBS"'"'
 
-# --- Update local.conf Files ---
-for LOCAL_CONF in $LOCAL_CONFS; do
-    echo "---"
-    echo "🔧 Updating $LOCAL_CONF"
-
-    # Function to update or add a variable
-    update_variable() {
-        local VAR_LINE="$1"
-        local VAR_NAME=$(echo "$VAR_LINE" | awk '{print $1}')
-
-        # 1. Check if the variable exists (without comment or space)
-        if grep -q "^[[:space:]]*${VAR_NAME}" "$LOCAL_CONF"; then
-            # 2. If it exists, overwrite it (using sed for precision)
-            sed -i "/^[[:space:]]*${VAR_NAME}/c\\${VAR_LINE}" "$LOCAL_CONF"
-            echo "✅ Overwrote ${VAR_NAME} to use calculated value."
-        else
-            # 3. If it does not exist, append it
-            echo "$VAR_LINE" >> "$LOCAL_CONF"
-            echo "✅ Added ${VAR_NAME}"
-        fi
-    }
-
-    # Apply Cache Settings
-    update_variable "$DL_DIR_LINE"
-    update_variable "$SSTATE_DIR_LINE"
-
-    # Apply Parallelism Settings
-    update_variable "$BB_THREADS_LINE"
-    update_variable "$MAKE_JOBS_LINE"
+    echo "Updated Yocto settings: $conf"
 done
 
-echo "---"
-echo "🎉 Configuration update complete."
+# --- Platform-specific settings ---
+for conf in $LOCAL_CONFS; do
+    echo "Updated platform settings: $conf"
+done
+
+echo "Cache: $CACHE_BASE"
+echo "BB_NUMBER_THREADS=$BB_THREADS, PARALLEL_MAKE=-j$MAKE_JOBS"
